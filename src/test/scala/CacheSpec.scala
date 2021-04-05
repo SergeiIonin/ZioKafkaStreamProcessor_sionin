@@ -1,65 +1,64 @@
 import messaging.{Event, Report}
-import org.scalatest.{Matchers, WordSpec}
-import processing.{AnalyzerError, Cache, Collecting}
-import processing.ProcessingAliases.{Cache, Collecting}
-import zio.{Exit, ULayer, URIO, ZIO}
+import processing.Cache
 import zio.test.Assertion._
 import zio.test._
-import zio.test.mock.Expectation._
-import zio.test.mock._
-import zio.Runtime
 
-/*class CacheSpec extends DefaultRunnableSpec {
+object CacheSpec extends DefaultRunnableSpec {
 
-  def spec: ZSpec[Any, Any] = suite("dsvf") (
-    testM("cacheState is updated") {
-      val cacheLayer: ULayer[Cache] = Cache.live
+  override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] = suite("ExampleSpec")(
 
-      val event = Event("event1", 12)
-      (0 until 3) foreach { _ =>
-        Cache.put(event)
-      }
-      val cacheState: URIO[Cache, List[Report]] = Cache.getAll()
-      assertM(cacheState)(equalTo(List(Report("event1", 3))))
-    }
-  )
-      //assert(Runtime.default.unsafeRun(cacheState.) == List(Report("event1", 3)))
+    testM("Cache should persist and return list of reports for each event") {
+      val event1_1 = Event("event1", 12)
+      val event1_2 = Event("event1", 15)
+      val event1_3 = Event("event1", 18)
+      val event1_4 = Event("event1", 18)
 
-      //eventCollected.map(list => list shouldEqual List(Report("event10", 1)))
-      //val eventCollected: ZIO[Collecting, AnalyzerError, List[Report]] = Collecting.collect(event)
-      //assertM(cacheState)(AssertionM(List(Report("event1", 3))))
-     /* for {
-        reports <- cacheState
-        _ = reports shouldBe List(Report("event1", 3)) //zio.console.putStrLn(reports.mkString(", "))
-      } yield ()*/
+      val event2_1 = Event("event2", 26)
+      val event2_2 = Event("event2", 28)
+      val event2_3 = Event("event2", 28)
 
-     // val r: URIO[Collecting, Exit[AnalyzerError, List[Report]]] = eventCollected.run.fold(f => f, res => res)
-}*/
+      val event3_1 = Event("event3", 91)
+      val event3_2 = Event("event3", 91)
+      (for {
+        _ <- Cache.put(event1_1)
+        _ <- Cache.put(event1_2)
+        _ <- Cache.put(event1_3)
+        _ <- Cache.put(event1_4)
 
-object ExampleSpec extends DefaultRunnableSpec {
+        _ <- Cache.put(event2_1)
+        _ <- Cache.put(event2_2)
+        _ <- Cache.put(event2_3)
 
-  def spec = suite("ExampleSpec")(
-    testM("testing an effect using map operator") {
-      ZIO.succeed(1 + 1).map(n => assert(n)(equalTo(2)))
+        _ <- Cache.put(event3_1)
+        _ <- Cache.put(event3_2)
+        cacheState <- Cache.getAll()
+      } yield assert(cacheState)(equalTo(List(Report("event1", Set(12, 15, 18), 3), Report("event2", Set(26, 28), 2),
+        Report("event3", Set(91), 1))))
+        ).provideLayer(Cache.live)
     },
-    testM("testing an effect using a for comprehension") {
-      val y: ZIO[Any, Nothing, TestResult] = for {
-        n <- ZIO.succeed(1 + 1)
-      } yield assert(n)(equalTo(2))
-      y
-    },
-    testM("test of Cache") {
-      val cacheLayer: ULayer[Cache] = Cache.live
+    testM("Cache should persist and return list of reports for each event w/ accuracy 99.5") {
+      val event1_1 = Event("event1", 100_000) // unique
+      val event1_2 = Event("event1", 99_901) // not unique
+      val event1_3 = Event("event1", 100_099) // not unique
+      val event1_4 = Event("event1", 1)
 
-      val event = Event("event1", 12)
-      (0 until 3) foreach { _ =>
-        Cache.put(event)
-      }
-      val cacheState: ZIO[Any, Nothing, List[Report]] = Cache.getAll()
-      val x: ZIO[Cache, Nothing, TestResult] = for {
-        reports <- cacheState
-      } yield assert(reports)(equalTo(List(Report("event1", 3))))
-      //assertM(cacheState)(equalTo(List(Report("event1", 3))))
+      val event2_1 = Event("event2", 100_000) // unique
+      val event2_2 = Event("event2", 99_899) // unique
+      val event2_3 = Event("event2", 100_051) // not unique
+
+      (for {
+        _ <- Cache.put(event1_1)
+        _ <- Cache.put(event1_2)
+        _ <- Cache.put(event1_3)
+        _ <- Cache.put(event1_4)
+
+        _ <- Cache.put(event2_1)
+        _ <- Cache.put(event2_2)
+        _ <- Cache.put(event2_3)
+        cacheState <- Cache.getAll()
+      } yield assert(cacheState)(equalTo(List(Report("event1", Set(100_000, 1), 2), Report("event2", Set(100_000, 99899), 2))))
+        ).provideLayer(Cache.live)
     }
+
   )
 }

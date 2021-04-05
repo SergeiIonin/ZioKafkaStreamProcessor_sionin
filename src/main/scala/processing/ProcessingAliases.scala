@@ -21,5 +21,4 @@ object ProcessingAliases {
     with Producer[Any, String, String]
     with Collecting
 
-
 }

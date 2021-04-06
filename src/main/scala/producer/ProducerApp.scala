@@ -18,7 +18,7 @@ object ProducerApp extends App {
 
   private lazy val program: ZIO[Any with Blocking with Producer[Any, String, String] with Logging, Throwable, Unit] =
     ZStream
-      .fromIterable(EventGenerator.events)
+      .fromIterable(EventGenerator.events_short)
       .map(toProducerRecord)
       .mapM { producerRecord =>
         log.info(s"Producing $producerRecord to Kafka...") *>

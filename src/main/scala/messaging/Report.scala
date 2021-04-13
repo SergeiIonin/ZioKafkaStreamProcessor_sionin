@@ -1,20 +1,19 @@
 package messaging
 
 import io.circe.{Decoder, Encoder, HCursor, Json}
+import shapeless.Lazy.apply
 
 final case class Report(event_name: String, eventValues: Set[EventFormat], eventCalled: Int)
 
 object Report {
 
   implicit val encoder: Encoder[Report] = (r: Report) => Json.obj(
-    "event_name" -> Json.fromString(r.event_name),
-    "eventCalled" -> Json.fromInt(r.eventCalled)
+    s"${r.event_name}" -> Json.fromInt(r.eventCalled),
   )
 
-  implicit val decoder: Decoder[Report] = (hc: HCursor) => for {
-    event_name <- hc.downField("event_name").as[String]
-    eventCalled <- hc.downField("eventCalled").as[Int]
-  } yield {
-    Report(event_name, Set.empty, eventCalled)
+  implicit val decoder: Decoder[Report] = (hc: HCursor) => {
+    val event_name = hc.keys.map(_.head).getOrElse("")
+    hc.downField(event_name).as[Int].map(event_called => Report(event_name, Set.empty, event_called))
   }
+
 }

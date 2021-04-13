@@ -50,5 +50,5 @@ object Pipeline {
     }
 
   private def toProducerRecord(reports: List[Report]): ProducerRecord[String, String] =
-    new ProducerRecord("reports", "report", reports.map(_.asJson).mkString("\n,"))
+    new ProducerRecord("reports", "report", reports.map(_.asJson).mkString(",\n"))
 }

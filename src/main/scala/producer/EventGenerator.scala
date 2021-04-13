@@ -5,21 +5,21 @@ import messaging.Event
 object EventGenerator {
 
   lazy val events_short = List(
-    Event("event1", 1),
-    Event("event1", 2),
-    Event("event1", 3),
-    Event("event1", 4),
-    Event("event1", 5),
+    Event("event14", 1),
+    Event("event14", 2),
+    Event("event14", 3),
+    Event("event14", 4),
+    Event("event14", 5),
 
-    Event("event2", 1),
-    Event("event2", 2),
-    Event("event2", 3),
-    Event("event2", 4),
+    Event("event24", 1),
+    Event("event24", 2),
+    Event("event24", 3),
+    Event("event24", 4),
 
-    Event("event3", 1),
-    Event("event3", 2),
-    Event("event3", 3)
+    Event("event34", 1),
+    Event("event34", 2),
+    Event("event34", 3)
   )
 
-  lazy val events = (0 until 100_000).map(i => Event(s"event-$i", i))
+  //lazy val events = (0 until 100_000).map(i => Event(s"event-$i", i))
 }

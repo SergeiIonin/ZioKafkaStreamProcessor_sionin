@@ -34,7 +34,7 @@ object ProcessingApp extends zio.App {
         .withCloseTimeout(30.seconds)
         .withPollTimeout(10.millis)
         .withProperty("enable.auto.commit", "false")
-        .withProperty("auto.offset.reset", "earliest")
+        .withProperty("auto.offset.reset", "latest")
 
     val producerSettings = ProducerSettings(List("localhost:9092"))
 

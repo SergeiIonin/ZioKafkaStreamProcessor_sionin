@@ -6,13 +6,14 @@ import scala.sys.process.Process
 lazy val root = (project in file(".")).
   enablePlugins(DockerPlugin).
   enablePlugins(AshScriptPlugin).
+  enablePlugins(JavaAppPackaging).
   settings(
     inThisBuild(List(
       organization := "com.example",
       scalaVersion := "2.13.5"
     )),
     name := "ZIOStreamProcessor",
-    packageName in Docker := "zio-kafka-stream-processor-9",
+    packageName in Docker := "zio-kafka-stream-processor-10",
     dockerExposedPorts ++= Seq(8085),
     dockerUpdateLatest := true,
     dockerBaseImage := "openjdk:8u201-jre-alpine3.9",
@@ -60,6 +61,8 @@ val testDependencies = Seq(
   "dev.zio" %% "zio-test-sbt" % zio_version
 ) map (_ % Test)
 
+mainClass in (Compile, run) := Some("processing.ProcessingApp")
+
 /*val excludeFromJar = "producer"
 def toAddToJar(toPath: String) = {
   toPath.split("/").toList.headOption.fold(true)(path => path != excludeFromJar)
@@ -70,8 +73,6 @@ mappings in (Compile,packageBin) ~= { (ms: Seq[(File, String)]) =>
     toAddToJar(toPath)
   }
 }
-
-mainClass in (Compile, run) := Some("processing.ProcessingApp")
 
 val sudo = taskKey[Unit]("Executes commands with sudo!")
 

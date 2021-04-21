@@ -1,8 +1,8 @@
 version: '3.4'
 services:
-    zio-kafka-stream-processor-7:
+    zio-kafka-stream-processor-10:
       restart: always
-      image: zio-kafka-stream-processor-7:latest
+      image: zio-kafka-stream-processor-10:latest
       network_mode: host
       ports:
-        - "8080:8080"
+        - "8080:8085"

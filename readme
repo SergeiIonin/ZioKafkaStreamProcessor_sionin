@@ -1,0 +1,7 @@
+How to use this app:
+1) pull docker container via
+docker pull sionin/zio-kafka-stream-processor-10
+2) run kafka server on port 9092
+3) run consumer with name reports on port 9092, e.g., run it in localhost:9092 
+#!/bin/bash
+<where-your-kafka-binaries-are>/kafka_2.13-2.7.0/bin/kafka-console-consumer.sh --topic $1 --from-beginning --bootstrap-server localhost:9092

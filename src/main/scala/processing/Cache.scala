@@ -1,12 +1,10 @@
 package processing
 
-import messaging.{Event, EventFormat, Report}
+import messaging.{Event, Report}
 import processing.ProcessingAliases.Cache
 import zio._
 
 object Cache {
-
-  val accuracy = 0.001
 
   trait Service {
     def get(event_name: String): UIO[Option[Report]]
@@ -42,19 +40,17 @@ object Cache {
       } yield result
 
     override def put(event: Event): UIO[Unit] = {
-      def updateCache(cache: Map[String, Report]) = {
+      def updateCache(cache: Map[String, Report]): Map[String, Report] = {
         val event_name = event.event_name
-        val report = cache.get(event_name)
-        report.fold(cache.updated(event_name, Report(event_name, Set(event.value), 1)))(
+        val reportOpt = cache.get(event_name)
+        reportOpt.fold(cache.updated(event_name,
+          initReport(event_name, event.value)))(
           report => {
-            if (isEventUnique(report.eventValues, event.value)) {
-              cache.updated(event_name, Report(event_name, report.eventValues + event.value, report.eventCalled + 1))
+            if (report.isNewEventValueUnique(event.value)) {
+              cache.updated(event_name, updateReport(report, event.value))
             } else cache
           }
         )
-      }
-      def isEventUnique(recordedValues: Set[EventFormat], newEventValue: EventFormat): Boolean = {
-        !recordedValues.map(recorded => (recorded.toDouble / newEventValue - 1).abs).exists(_ <= accuracy)
       }
       ref.update(updateCache)
     }
@@ -67,6 +63,17 @@ object Cache {
     }
 
     override def empty(): UIO[Unit] = ref.get.map(_ => ref.update(_ => Map.empty[String, Report]))
+
+    private def initReport(event_name: String, eventValue: Long) = {
+      val report = Report(event_name, 1, Report.createEmptyBloomFilter)
+      report.updateBloomFilter(eventValue)
+      report
+    }
+
+    private def updateReport(report: Report, eventValue: Long) = {
+      report.updateBloomFilter(eventValue)
+      report.copy(eventCalled = report.eventCalled + 1)
+    }
 
   }
 

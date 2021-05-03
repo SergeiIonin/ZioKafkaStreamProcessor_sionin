@@ -17,7 +17,8 @@ lazy val root = (project in file(".")).
     dockerExposedPorts ++= Seq(8085),
     dockerUpdateLatest := true,
     dockerBaseImage := "openjdk:8u201-jre-alpine3.9",
-    libraryDependencies ++= zioDeps ++ zioLoggingDeps ++ circeDeps ++ jacksonDeps ++ loggingDeps ++ testDependencies,
+    libraryDependencies ++= zioDeps ++ zioLoggingDeps ++ circeDeps ++ jacksonDeps ++ loggingDeps ++ testDependencies ++
+      guavaDeps,
     cancelable := false
   )
 
@@ -28,7 +29,8 @@ val circe_version      = "0.13.0"
 val sttp_version       = "2.2.9"
 val log4j_version      = "2.13.3"
 val disruptor_version  = "3.4.2"
-val jackson_version  = "2.12.0"
+val jackson_version    = "2.12.0"
+val guava_version      = "12.0"
 
 val zioDeps = Seq(
   "dev.zio" %% "zio"         % zio_version,
@@ -53,6 +55,10 @@ val loggingDeps = Seq(
   "org.apache.logging.log4j" % "log4j-core"       % log4j_version,
   "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j_version,
   "com.lmax"                 % "disruptor"        % disruptor_version
+)
+
+val guavaDeps = Seq(
+  "com.google.guava" % "guava" % guava_version,
 )
 
 val testDependencies = Seq(

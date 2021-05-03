@@ -42,7 +42,7 @@ object Pipeline {
                   *> ZIO.succeed(committableRecord))
             }
           }
-          .map(_.offset)
+          .map(_.offset) // todo try map(_.record)
           .aggregateAsync(Consumer.offsetBatches)
           .mapM(_.commit)
           .runDrain)
